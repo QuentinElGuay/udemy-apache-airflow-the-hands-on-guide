@@ -12,6 +12,9 @@ Repository for the exercises of the Udemy Course "Apache Airflow: The Hands-On G
 curl -sSL install.astronomer.io | sudo bash -s
 ```
 
+This project uses Astro CLI version `1.42.1` and Airflow version `2.11.2+astro.3`
+
+
 ## Course
 
 ### The basics of Apache Airflow
