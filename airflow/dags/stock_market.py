@@ -1,11 +1,15 @@
+from datetime import datetime
+
 from airflow.decorators import dag, task
 from airflow.hooks.base import BaseHook
 from airflow.operators.python import PythonOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.sensors.base import PokeReturnValue
-from datetime import datetime
+from astro import sql as aql
+from astro.files import File
+from astro.sql.table import Table, Metadata
 
-from include.stock_market.tasks import _get_formatted_csv, _get_stock_prices, _store_prices
+from include.stock_market.tasks import BUCKET_NAME, _get_formatted_csv, _get_stock_prices, _store_prices
 
 SYMBOL = 'NVDA'
 
@@ -57,13 +61,33 @@ def stock_market():
     )
 
     get_formatted_csv = PythonOperator(
-        task_id='get_formated_csv',
+        task_id='get_formatted_csv',
         python_callable=_get_formatted_csv,
         op_kwargs={
             'path': '{{ ti.xcom_pull(task_ids="store_prices") }}'
         }
     )
 
-    is_api_available() >> get_stock_prices >> store_prices >> format_prices >> get_formatted_csv
+    load_to_dw = aql.load_file(
+        task_id='load_to_dw',
+        input_file=File(
+            path=f's3://{BUCKET_NAME}/{{{{ ti.xcom_pull(task_ids="get_formatted_csv") }}}}',
+            conn_id='minio'
+        ),
+        output_table=Table(
+            name='stock_market',
+            conn_id='postgres',
+            metadata=Metadata(
+                schema='public'
+            )
+        ),
+        load_options={
+            'aws_access_key_id': BaseHook.get_connection('minio').login,
+            'aws_secret_access_key': BaseHook.get_connection('minio').password,
+            'endpoint_url': BaseHook.get_connection('minio').host
+        }
+    )
+
+    is_api_available() >> get_stock_prices >> store_prices >> format_prices >> get_formatted_csv >> load_to_dw
 
 stock_market()
