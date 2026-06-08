@@ -1,0 +1,37 @@
+{
+    "folders": [
+        {
+            "name": "Course 1",
+            "path": "course_1"
+        },
+        {
+            "name": "Course 2",
+            "path": "course_2"
+        }
+    ],
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Run Course 1",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${file}",
+                "console": "integratedTerminal",
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder:Course 1}/"
+                }
+            },
+            {
+                "name": "Run Course 2",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${file}",
+                "console": "integratedTerminal",
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder:Course 2}/"
+                }
+            }
+        ]
+    }
+}
