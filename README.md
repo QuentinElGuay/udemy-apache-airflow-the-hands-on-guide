@@ -50,4 +50,10 @@ This project uses Astro CLI version `1.42.1` and Airflow version `2.11.2+astro.3
 6. Tasks status are actualized in the Meta Data database.
 7. When all tasks of a DAG are finished, the DAG is marked as finished.
 
-
+#### Airflow configuration
+##### Concurrency settings:
+- __parallelism:__ the maximum number of tasks that can run concurrently on each scheduler within a single Airflow environment.
+- __max_active_tasks_per_dag:__ the maximum number of tasks that can be scheduled at the same time across all runs of a DAG.
+  - At the DAG level: __max_active_tasks__.
+- __max_active_runs_per_dag:__ determines the maximum number of active DAG runs (per DAG) that the scheduler can create at a time.
+  - At the DAG level: __max_active_runs__.
